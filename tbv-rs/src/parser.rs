@@ -35,6 +35,8 @@ pub enum Stmt {
     TryCatch  { try_body: Vec<Stmt>, catch_body: Vec<Stmt>, line: usize },
     Break     { line: usize },
     Continue  { line: usize },
+    Serve     { port: Expr, body: Vec<Stmt>, line: usize },
+    Respond   { value: Expr, line: usize },
 }
 
 #[derive(Debug, Clone)]
@@ -338,6 +340,25 @@ impl Parser {
             self.eat_phrase(&["atter", "ein", "gong"])?;
             self.eat_kind(&TokenKind::Dot)?;
             return Ok(Stmt::Continue { line: ln });
+        }
+
+        // Lytt ved port <n>: <body> Det er nok.
+        if self.is_phrase(&["Lytt", "ved", "port"]) {
+            self.eat_phrase(&["Lytt", "ved", "port"])?;
+            let port = self.parse_primary()?;
+            self.eat_kind(&TokenKind::Colon)?;
+            let body = self.parse_block()?;
+            self.eat_phrase(&["Det", "er", "nok"])?;
+            self.eat_kind(&TokenKind::Dot)?;
+            return Ok(Stmt::Serve { port, body, line: ln });
+        }
+
+        // Svar med: <expr>
+        if self.is_phrase(&["Svar", "med"]) {
+            self.eat_phrase(&["Svar", "med"])?;
+            self.eat_kind(&TokenKind::Colon)?;
+            let value = self.parse_expr()?;
+            return Ok(Stmt::Respond { value, line: ln });
         }
 
         Err(format!("Line {}: unexpected token {:?}", ln, self.cur().kind))

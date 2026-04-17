@@ -13,9 +13,9 @@ The interpreter is called **tbv** (Trygve Bjerkrheim's Verse).
 ## Running programs
 
 ```
-./tbv program.tb        # run a file
-./tbv --repl                # interactive REPL
-./tbv --version             # show version
+./tbv program.tb     # run a file
+./tbv --repl         # interactive REPL
+./tbv --version      # show version
 ```
 
 Files use the `.tb` extension. Source must be UTF-8.
@@ -28,8 +28,7 @@ Files use the `.tb` extension. Source must be UTF-8.
 – – dette er ein kommentar – –
 ```
 
-En-dash pairs (`–`) mark a comment to end of line, exactly as they appear in
-his poetry.
+En-dash pairs (`–`) mark a comment to end of line, exactly as they appear in his poetry.
 
 ---
 
@@ -51,12 +50,12 @@ Strings use Norwegian guillemets `«` and `»`.
 
 ## Variables
 
-**Declare / assign** — *"To give is to sow [value] into [name]"*
+**Declare** — *"let [name] be [value]"*
 
 ```
-Å gi er å så 42 til svaret
-Å gi er å så «hei» til helsing
-Å gi er å så [1, 2, 3] til liste
+lat svaret vera 42
+lat helsing vera «hei»
+lat liste vera [1, 2, 3]
 ```
 
 **Reassign** — *"[name] receives [value]"*
@@ -65,18 +64,15 @@ Strings use Norwegian guillemets `«` and `»`.
 svaret tek imot svaret og 1
 ```
 
-Variable names are single words (lowercase recommended). They cannot start with
-a capitalised keyword.
-
 ---
 
 ## Output
 
-*"Our song shall rise"* — prints a value followed by newline.
+*"Sing out"* — prints a value followed by newline.
 
 ```
-Vår song skal stiga opp: «Aldri var landet so fagert som no»
-Vår song skal stiga opp: 6 gongar 7
+Syng ut: «Aldri var landet so fagert som no»
+Syng ut: 6 gongar 7
 ```
 
 ---
@@ -131,11 +127,11 @@ ikkje a er b      – – NOT (a == b) — use parentheses for clarity – –
 
 ## Conditionals
 
-*"You can't get around [condition]"* — if the condition holds, the body runs.
+*"You can't get around [condition]"*
 
 ```
 Du kjem ikkje utanom svar er 42:
-    Vår song skal stiga opp: «Rett!»
+    Syng ut: «Rett!»
 Det er nok.
 ```
 
@@ -143,9 +139,9 @@ With else — *"but if not"*:
 
 ```
 Du kjem ikkje utanom tal er større enn 0:
-    Vår song skal stiga opp: «positivt»
+    Syng ut: «positivt»
 Men om ikkje:
-    Vår song skal stiga opp: «negativt eller null»
+    Syng ut: «negativt eller null»
 Det er nok.
 ```
 
@@ -155,12 +151,12 @@ Every `Du kjem ikkje utanom` block ends with `Det er nok.`
 
 ## While loop
 
-*"Just one day, one moment at a time, while [condition]"*
+*"One moment at a time, while [condition]"*
 
 ```
-Å gi er å så 1 til i
-Blott ein dag, eit øyeblikk om gongen, medan i er mindre enn 11:
-    Vår song skal stiga opp: i
+lat i vera 1
+Eit øyeblikk om gangen, medan i er mindre enn 11:
+    Syng ut: i
     i tek imot i og 1
 Det er nok.
 ```
@@ -169,11 +165,11 @@ Det er nok.
 
 ## For-each loop
 
-*"Each day is precious [var] in [iterable]"*
+*"each [var] in [iterable]"*
 
 ```
-Kvar dag er dyr song i songar:
-    Vår song skal stiga opp: song
+kvar song i songar:
+    Syng ut: song
 Det er nok.
 ```
 
@@ -183,12 +179,11 @@ Works on lists and strings.
 
 ## Count loop
 
-*"Peak behind peaks [n] times"* — from the Romsdal poem, where peaks nest behind
-peaks: `Topp attom toppar, tind attom tind`.
+*"Peak behind peaks [n] times"* — from `Topp attom toppar, tind attom tind`.
 
 ```
 Topp attom toppar 5 gongar:
-    Vår song skal stiga opp: «hei»
+    Syng ut: «hei»
 Det er nok.
 ```
 
@@ -196,7 +191,7 @@ With a loop variable — *"as [var]"* (0-indexed):
 
 ```
 Topp attom toppar 5 som i gongar:
-    Vår song skal stiga opp: i
+    Syng ut: i
 Det er nok.
 ```
 
@@ -208,13 +203,25 @@ Det er nok.
 
 ```
 Evig i lysets rike:
-    – – this runs forever – –
-    – – use Du kjem ikkje utanom … to break – –
+    – – runs forever – –
 Det er nok.
 ```
 
-To break out: set a flag and use a while loop instead, or restructure with
-`Blott ein dag`.
+---
+
+## Break and continue
+
+**Break** — *"the shuttle stops still"* (from `og skyttelen stansar stilt`)
+
+```
+stansar stilt.
+```
+
+**Continue** — *"once again"* (from `Atter ein gong ser eg`)
+
+```
+atter ein gong.
+```
 
 ---
 
@@ -224,14 +231,14 @@ To break out: set a flag and use a while loop instead, or restructure with
 
 ```
 Gud har ein plan med kvadrat(n):
-    Takk for sangen: n gongar n
+    Takk at du tok mine byrder: n gongar n
 Det er nok.
 ```
 
-**Return** — *"Thanks for the song"* (the song has been sung; it rises back up)
+**Return** — *"Thanks that you took my burdens"*
 
 ```
-Takk for sangen: n gongar n
+Takk at du tok mine byrder: n gongar n
 ```
 
 **Call as statement** — *"Come along to [name] with [args]"*
@@ -240,20 +247,20 @@ Takk for sangen: n gongar n
 Bli med til kvadrat med 5
 ```
 
-**Call as expression** (same syntax, used inside an expression):
+**Call as expression** (same syntax, inside an expression):
 
 ```
-Vår song skal stiga opp: Bli med til kvadrat med 7
-Å gi er å så Bli med til kvadrat med n til resultat
+Syng ut: Bli med til kvadrat med 7
+lat resultat vera Bli med til kvadrat med n
 ```
 
-**Call with parentheses** (alternative syntax for built-ins and functions):
+**Call with parentheses** (alternative, works for both builtins and functions):
 
 ```
-Vår song skal stiga opp: kvadrat(7)
+Syng ut: kvadrat(7)
 ```
 
-Functions without `Takk for sangen` return `tome hender` (null).
+Functions without `Takk at du tok mine byrder` return `tome hender` (null).
 
 ---
 
@@ -263,14 +270,32 @@ Functions without `Takk for sangen` return `tome hender` (null).
 
 ```
 Prøv å få gjort det du kan:
-    – – risky code – –
-    Å gi er å så heiltal(«ikkje eit tal») til n
+    lat n vera heiltal(«ikkje eit tal»)
 Ver ikkje redd:
-    Vår song skal stiga opp: «Noko gjekk gale: » og feilen
+    Syng ut: «Noko gjekk gale: » og feilen
 Det er nok.
 ```
 
 The variable `feilen` contains the error message inside the catch block.
+
+---
+
+## Web server
+
+*"Listen at port [n]"* — starts an HTTP server. Sets `metode`, `vegen`, and `kropp`
+for each incoming request. *"Answer with [expr]"* sends the response.
+
+```
+Lytt ved port 8080:
+    Du kjem ikkje utanom vegen er «/hei»:
+        Svar med: «Hei, verd!»
+    Det er nok.
+    Svar med: «404 – ikkje funne: » og vegen
+Det er nok.
+```
+
+The server runs until the process is killed. Each request gets a fresh scope.
+`Svar med:` may be called once; the last value wins if called multiple times.
 
 ---
 
@@ -282,12 +307,14 @@ The variable `feilen` contains the error message inside the catch block.
 | `heiltal(v)` | any | integer |
 | `desimaltal(v)` | any | float |
 | `tekst(v)` | any | string |
-| `legg_til(liste, x)` | list, value | new list with x appended |
-| `del_frå(liste, i)` | list, index | new list with element i removed |
-| `del_opp(s, sep)` | string, separator | list of substrings |
-| `sett_saman(liste, sep)` | list, separator | joined string |
+| `legg til(liste, x)` | list, value | new list with x appended |
+| `del frå(liste, i)` | list, index | new list with element i removed |
+| `del opp(s, sep)` | string, separator | list of substrings |
+| `sett saman(liste, sep)` | list, separator | joined string |
 | `sorter(liste)` | list | sorted list |
-| `kvart_tal(n)` | integer | list `[0, 1, …, n-1]` |
+| `kvart tal(n)` | integer | list `[0, 1, …, n-1]` |
+
+Two-word builtins can also be called with parentheses: `legg til(liste, x)`.
 
 ---
 
@@ -305,15 +332,13 @@ Use parentheses `(…)` to override precedence.
 
 ## Notes
 
-- **`og` is addition**, not boolean AND. For compound conditions, use nested `Du kjem ikkje utanom` blocks.
-- Function call arguments are greedy. When a function call is part of a larger expression, store intermediate results in variables:
+- **`og` is addition**, not boolean AND. For compound conditions, nest `Du kjem ikkje utanom` blocks.
+- Function call arguments are greedy. Store intermediate results in variables or use parentheses:
   ```
-  Å gi er å så Bli med til f med a til x
-  Å gi er å så Bli med til g med b til y
-  Vår song skal stiga opp: x og y
+  lat x vera Bli med til f med a
+  lat y vera Bli med til g med b
+  Syng ut: x og y
   ```
-  Or use parentheses: `(Bli med til f med a) og (Bli med til g med b)`
-- Variable names should be single lowercase Norwegian words. Underscores are allowed (`er_primtal`).
 
 ---
 
@@ -327,6 +352,7 @@ Use parentheses `(…)` to override precedence.
 | `examples/gjeting.tb` | Number guessing game |
 | `examples/lister.tb` | Lists and iteration |
 | `examples/funksjonar.tb` | Functions, factorial, primality |
+| `examples/webtenar.tb` | Simple HTTP web server |
 
 ---
 

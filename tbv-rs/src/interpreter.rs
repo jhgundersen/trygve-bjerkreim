@@ -1,7 +1,8 @@
 /// Tree-walking interpreter for Trygve Bjerkreim.
 
 use std::collections::HashMap;
-use std::io::{self, BufRead, Write};
+use std::io::{self, BufRead, Read, Write};
+use std::net::TcpListener;
 use std::fmt;
 
 use crate::parser::{BinOpKind, Expr, Program, Stmt};
@@ -134,13 +135,13 @@ impl Env {
 // ─────────────────────────────────────────────────────────────────
 
 pub struct Interpreter {
-    /// Top-level definitions (functions defined at runtime).
     globals: HashMap<String, Value>,
+    response: Option<String>,
 }
 
 impl Interpreter {
     pub fn new() -> Self {
-        Interpreter { globals: HashMap::new() }
+        Interpreter { globals: HashMap::new(), response: None }
     }
 
     pub fn run(&mut self, program: &Program) -> Result<(), String> {
@@ -300,6 +301,70 @@ impl Interpreter {
             Stmt::Break { .. } => Ok(Some(Signal::Break)),
 
             Stmt::Continue { .. } => Ok(Some(Signal::Continue)),
+
+            Stmt::Respond { value, .. } => {
+                let v = self.eval(value, env)?;
+                self.response = Some(v.to_string());
+                Ok(None)
+            }
+
+            Stmt::Serve { port, body, .. } => {
+                let p = match self.eval(port, env)? {
+                    Value::Int(n)   => n as u16,
+                    Value::Float(f) => f as u16,
+                    other           => return Err(format!("port må vera heiltal, fekk {}", other)),
+                };
+                let listener = TcpListener::bind(("0.0.0.0", p))
+                    .map_err(|e| format!("kan ikkje lytta på port {}: {}", p, e))?;
+                eprintln!("Lyttar på port {} …", p);
+                for incoming in listener.incoming() {
+                    let mut stream = match incoming {
+                        Ok(s)  => s,
+                        Err(_) => continue,
+                    };
+                    let mut reader = match stream.try_clone() {
+                        Ok(c)  => io::BufReader::new(c),
+                        Err(_) => continue,
+                    };
+                    // Parse request line
+                    let mut request_line = String::new();
+                    reader.read_line(&mut request_line).ok();
+                    let parts: Vec<&str> = request_line.split_whitespace().collect();
+                    let metode = parts.first().copied().unwrap_or("GET").to_string();
+                    let vegen  = parts.get(1).copied().unwrap_or("/").to_string();
+                    // Read headers
+                    let mut content_length = 0usize;
+                    loop {
+                        let mut hdr = String::new();
+                        reader.read_line(&mut hdr).ok();
+                        if hdr.trim().is_empty() { break; }
+                        let lower = hdr.to_lowercase();
+                        if let Some(rest) = lower.strip_prefix("content-length:") {
+                            content_length = rest.trim().parse().unwrap_or(0);
+                        }
+                    }
+                    // Read body
+                    let mut body_bytes = vec![0u8; content_length];
+                    reader.read_exact(&mut body_bytes).ok();
+                    let kropp = String::from_utf8_lossy(&body_bytes).into_owned();
+                    // Execute handler block
+                    env.push();
+                    env.set("metode", Value::Str(metode));
+                    env.set("vegen",  Value::Str(vegen));
+                    env.set("kropp",  Value::Str(kropp));
+                    self.response = None;
+                    let _ = self.exec_block(body, env);
+                    env.pop();
+                    // Send response
+                    let resp = self.response.take().unwrap_or_default();
+                    let http = format!(
+                        "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nContent-Type: text/plain; charset=utf-8\r\nConnection: close\r\n\r\n{}",
+                        resp.len(), resp
+                    );
+                    stream.write_all(http.as_bytes()).ok();
+                }
+                Ok(None)
+            }
 
             Stmt::TryCatch { try_body, catch_body, .. } => {
                 env.push();

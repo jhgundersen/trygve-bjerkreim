@@ -1,0 +1,11 @@
+– – Ein enkel webtenar – –
+
+Lytt ved port 8080:
+    Du kjem ikkje utanom vegen er «/hei»:
+        Svar med: «Hei, verd!»
+    Det er nok.
+    Du kjem ikkje utanom vegen er «/»:
+        Svar med: «Velkomen til Trygve Bjerkreim sin tenar»
+    Det er nok.
+    Svar med: «404 – ikkje funne: » og vegen
+Det er nok.
