@@ -1,0 +1,17 @@
+– – Skriv dei 15 fyrste fibonacci-tala – –
+
+Gud har ein plan med fibonacci(n):
+    Du kjem ikkje utanom n er mindre enn 2:
+        Takk at du tok mine byrder: n
+    Det er nok.
+    lat a vera Bli med til fibonacci med n utan 1
+    lat b vera Bli med til fibonacci med n utan 2
+    Takk at du tok mine byrder: a og b
+Det er nok.
+
+lat i vera 0
+
+Eit øyeblikk om gangen, medan i er mindre enn 15:
+    Syng ut: Bli med til fibonacci med i
+    i tek imot i og 1
+Det er nok.

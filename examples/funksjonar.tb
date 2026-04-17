@@ -1,0 +1,39 @@
+– – Funksjonar – –
+
+Gud har ein plan med kvadrat(n):
+    Takk at du tok mine byrder: n gongar n
+Det er nok.
+
+Gud har ein plan med fakultet(n):
+    Du kjem ikkje utanom n er mindre enn 2:
+        Takk at du tok mine byrder: 1
+    Det er nok.
+    Takk at du tok mine byrder: n gongar Bli med til fakultet med n utan 1
+Det er nok.
+
+Gud har ein plan med primtal(n):
+    Du kjem ikkje utanom n er mindre enn 2:
+        Takk at du tok mine byrder: nei
+    Det er nok.
+    lat d vera 2
+    Eit øyeblikk om gangen, medan d gongar d er mindre enn n og 1:
+        Du kjem ikkje utanom resten av n delt på d er 0:
+            Takk at du tok mine byrder: nei
+        Det er nok.
+        d tek imot d og 1
+    Det er nok.
+    Takk at du tok mine byrder: ja
+Det er nok.
+
+Syng ut: «5 i kvadrat: » og Bli med til kvadrat med 5
+Syng ut: «7! = » og Bli med til fakultet med 7
+
+Syng ut: «»
+Syng ut: «Primtal opp til 30:»
+lat n vera 2
+Eit øyeblikk om gangen, medan n er mindre enn 31:
+    Du kjem ikkje utanom Bli med til primtal med n:
+        Syng ut: n
+    Det er nok.
+    n tek imot n og 1
+Det er nok.

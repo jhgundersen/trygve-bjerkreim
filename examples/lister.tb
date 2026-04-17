@@ -1,0 +1,19 @@
+– – Lister og iterasjon – –
+
+lat songar vera [«Takk at du tok mine byrder», «Det er nok», «Han tek ikkje glansen av livet», «Blott en dag»]
+
+Syng ut: «Songane i samlinga:»
+kvar song i songar:
+    Syng ut: «  » og song
+Det er nok.
+
+Syng ut: «Antal songar: » og lengd(songar)
+
+lat songar vera legg til(songar, «Eg lever på Jesu rekning»)
+Syng ut: «Etter tillegg: » og lengd(songar) og « songar»
+
+Syng ut: «»
+Syng ut: «Nummerert liste:»
+Topp attom toppar lengd(songar) som i gongar:
+    Syng ut: heiltal(i) og 1 og «. » og songar[i]
+Det er nok.

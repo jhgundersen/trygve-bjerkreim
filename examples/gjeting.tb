@@ -1,0 +1,24 @@
+– – Gjetteleik — gjet eit tal mellom 1 og 10 – –
+
+lat hemmeleg vera 7
+lat gjett vera 0
+lat forsøk vera 0
+
+Syng ut: «Gjet eit tal mellom 1 og 10:»
+
+Evig i lysets rike:
+    Kom med din gjett
+    gjett tek imot heiltal(gjett)
+    forsøk tek imot forsøk og 1
+
+    Du kjem ikkje utanom gjett er hemmeleg:
+        Syng ut: «Rett! Du brukte » og forsøk og « forsøk.»
+        stansar stilt.
+    Men om ikkje:
+        Du kjem ikkje utanom gjett er mindre enn hemmeleg:
+            Syng ut: «For lågt — prøv igjen.»
+        Men om ikkje:
+            Syng ut: «For høgt — prøv igjen.»
+        Det er nok.
+    Det er nok.
+Det er nok.

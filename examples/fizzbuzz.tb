@@ -1,0 +1,24 @@
+– – FizzBuzz – –
+– – deleleg på 15 → FizzBuzz – –
+– – deleleg på 3  → Fizz – –
+– – deleleg på 5  → Buzz – –
+– – elles          → talet sjølv – –
+
+lat tal vera 1
+
+Eit øyeblikk om gangen, medan tal er mindre enn 101:
+    Du kjem ikkje utanom resten av tal delt på 15 er 0:
+        Syng ut: «FizzBuzz»
+    Men om ikkje:
+        Du kjem ikkje utanom resten av tal delt på 3 er 0:
+            Syng ut: «Fizz»
+        Men om ikkje:
+            Du kjem ikkje utanom resten av tal delt på 5 er 0:
+                Syng ut: «Buzz»
+            Men om ikkje:
+                Syng ut: tal
+            Det er nok.
+        Det er nok.
+    Det er nok.
+    tal tek imot tal og 1
+Det er nok.
