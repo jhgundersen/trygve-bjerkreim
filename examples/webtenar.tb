@@ -3,9 +3,11 @@
 Lytt ved port 8080:
     Du kjem ikkje utanom vegen er «/hei»:
         Svar med: «Hei, verd!»
+    Men om ikkje:
+        Du kjem ikkje utanom vegen er «/»:
+            Svar med: «Velkomen til Trygve Bjerkreim sin tenar»
+        Men om ikkje:
+            Svar med: «404 – ikkje funne: » og vegen
+        Det er nok.
     Det er nok.
-    Du kjem ikkje utanom vegen er «/»:
-        Svar med: «Velkomen til Trygve Bjerkreim sin tenar»
-    Det er nok.
-    Svar med: «404 – ikkje funne: » og vegen
 Det er nok.
