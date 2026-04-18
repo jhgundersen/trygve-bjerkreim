@@ -183,6 +183,39 @@ impl Parser {
         }
     }
 
+    // Eat consecutive Word tokens until the next token is ':' (for class definitions).
+    fn eat_name_until_colon(&mut self) -> Result<String, String> {
+        let mut parts = Vec::new();
+        while let TokenKind::Word(_) = &self.cur().kind {
+            parts.push(self.eat_ident()?);
+            if matches!(self.cur().kind, TokenKind::Colon) { break; }
+        }
+        if parts.is_empty() {
+            Err(format!("Line {}: expected class name", self.cur().line))
+        } else {
+            Ok(parts.join(" "))
+        }
+    }
+
+    // Eat consecutive Word tokens, stopping before any of the given stop words.
+    fn eat_name_stop_words(&mut self, stops: &[&str]) -> Result<String, String> {
+        let mut parts = Vec::new();
+        while let TokenKind::Word(w) = &self.cur().kind {
+            if stops.contains(&w.as_str()) { break; }
+            parts.push(self.eat_ident()?);
+        }
+        if parts.is_empty() {
+            Err(format!("Line {}: expected name", self.cur().line))
+        } else {
+            Ok(parts.join(" "))
+        }
+    }
+
+    // eat_name_until_word: eat words until the given word is seen (does not eat that word).
+    fn eat_name_until_word(&mut self, stop: &str) -> Result<String, String> {
+        self.eat_name_stop_words(&[stop])
+    }
+
     fn eat_kind(&mut self, k: &TokenKind) -> Result<(), String> {
         if std::mem::discriminant(&self.cur().kind) == std::mem::discriminant(k) {
             self.pos += 1;
@@ -364,7 +397,7 @@ impl Parser {
         // Syng for meg songen om <Klasse> til <var>  — create object and assign
         if self.is_phrase(&["Syng", "for", "meg", "songen", "om"]) {
             self.eat_phrase(&["Syng", "for", "meg", "songen", "om"])?;
-            let class = self.eat_ident()?;
+            let class = self.eat_name_until_word("til")?;
             self.eat_word("til")?;
             let name = self.eat_ident()?;
             return Ok(Stmt::Assign { name, value: Expr::New { class }, line: ln });
@@ -373,7 +406,7 @@ impl Parser {
         // Songen <Namn>: <body> Det er nok.
         if self.is_word("Songen") {
             self.eat_word("Songen")?;
-            let name = self.eat_ident()?;
+            let name = self.eat_name_until_colon()?;
             self.eat_kind(&TokenKind::Colon)?;
             let body = self.parse_block()?;
             self.eat_phrase(&["Det", "er", "nok"])?;
@@ -601,10 +634,10 @@ impl Parser {
             return Ok(Expr::Not(Box::new(self.parse_primary()?)));
         }
 
-        // Syng for meg songen om <ClassName>  — instantiate object
+        // Syng for meg songen om <ClassName>  — instantiate object (expression context, no 'til')
         if self.is_phrase(&["Syng", "for", "meg", "songen", "om"]) {
             self.eat_phrase(&["Syng", "for", "meg", "songen", "om"])?;
-            let class = self.eat_ident()?;
+            let class = self.eat_name_stop_words(&["til"])?;
             return self.maybe_index(Expr::New { class });
         }
 
