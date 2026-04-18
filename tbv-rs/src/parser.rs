@@ -166,7 +166,7 @@ impl Parser {
                 TokenKind::Word(w) if !is_method_name_stop(w) => {
                     // If the token AFTER this one looks like a new-statement marker, cur is the
                     // subject of that next statement — don't eat it as part of the method name.
-                    if self.is_word_at(1, "vert") || self.is_word_at(1, "sin") || self.is_word_at(1, "tek") {
+                    if self.is_word_at(1, "vert") || self.is_word_at(1, "sin") || self.is_word_at(1, "sitt") || self.is_word_at(1, "tek") {
                         break;
                     }
                     let w = w.clone();
@@ -394,9 +394,10 @@ impl Parser {
         }
 
 
-        // Syng for meg songen om <Klasse> til <var>  — create object and assign
-        if self.is_phrase(&["Syng", "for", "meg", "songen", "om"]) {
-            self.eat_phrase(&["Syng", "for", "meg", "songen", "om"])?;
+        // Syng for meg songen [om] <Klasse> til <var>  — create object and assign
+        if self.is_phrase(&["Syng", "for", "meg", "songen"]) {
+            self.eat_phrase(&["Syng", "for", "meg", "songen"])?;
+            if self.is_word("om") { self.eat_word("om")?; }
             let class = self.eat_name_until_word("til")?;
             self.eat_word("til")?;
             let name = self.eat_ident()?;
@@ -441,15 +442,15 @@ impl Parser {
             return Ok(Stmt::MethodCall { obj, method, args, line: ln });
         }
 
-        // <var> sin <field> tek imot <expr>  — field assignment
+        // <var> sin/sitt <field> tek imot <expr>  — field assignment
         if matches!(self.cur().kind, TokenKind::Word(_))
-            && self.is_word_at(1, "sin")
+            && (self.is_word_at(1, "sin") || self.is_word_at(1, "sitt"))
             && matches!(self.peek(2).kind, TokenKind::Word(_))
             && self.is_word_at(3, "tek")
             && self.is_word_at(4, "imot")
         {
             let obj = self.eat_ident()?;
-            self.eat_word("sin")?;
+            if self.is_word("sin") { self.eat_word("sin")?; } else { self.eat_word("sitt")?; }
             let field = self.eat_ident()?;
             self.eat_phrase(&["tek", "imot"])?;
             let value = self.parse_expr()?;
@@ -634,9 +635,10 @@ impl Parser {
             return Ok(Expr::Not(Box::new(self.parse_primary()?)));
         }
 
-        // Syng for meg songen om <ClassName>  — instantiate object (expression context, no 'til')
-        if self.is_phrase(&["Syng", "for", "meg", "songen", "om"]) {
-            self.eat_phrase(&["Syng", "for", "meg", "songen", "om"])?;
+        // Syng for meg songen [om] <ClassName>  — instantiate object (expression context, no 'til')
+        if self.is_phrase(&["Syng", "for", "meg", "songen"]) {
+            self.eat_phrase(&["Syng", "for", "meg", "songen"])?;
+            if self.is_word("om") { self.eat_word("om")?; }
             let class = self.eat_name_stop_words(&["til"])?;
             return self.maybe_index(Expr::New { class });
         }
@@ -740,8 +742,8 @@ impl Parser {
                 let idx = self.parse_expr()?;
                 self.eat_kind(&TokenKind::RBracket)?;
                 node = Expr::Index { obj: Box::new(node), idx: Box::new(idx) };
-            } else if self.is_word("sin") && matches!(self.peek(1).kind, TokenKind::Word(_)) {
-                self.eat_word("sin")?;
+            } else if (self.is_word("sin") || self.is_word("sitt")) && matches!(self.peek(1).kind, TokenKind::Word(_)) {
+                if self.is_word("sin") { self.eat_word("sin")?; } else { self.eat_word("sitt")?; }
                 let field = self.eat_ident()?;
                 node = Expr::Field { obj: Box::new(node), field };
             } else {
@@ -769,7 +771,7 @@ fn is_method_name_stop(w: &str) -> bool {
     // Capitalized words are statement-starting keywords — never part of a method name.
     if w.chars().next().map_or(false, |c| c.is_uppercase()) { return true; }
     matches!(w,
-        "med" | "og" | "utan" | "gongar" | "delt" | "resten" | "er" | "ikkje" | "sin"
+        "med" | "og" | "utan" | "gongar" | "delt" | "resten" | "er" | "ikkje" | "sin" | "sitt"
         | "lat" | "kvar" | "stansar" | "atter" | "sjølv" | "til" | "av" | "på" | "i" | "frå"
     )
 }
