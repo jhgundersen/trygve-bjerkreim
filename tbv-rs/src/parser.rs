@@ -544,6 +544,24 @@ impl Parser {
             return Ok(Stmt::Respond { value, line: ln });
         }
 
+        // name(args) — function call as statement
+        if matches!(self.cur().kind, TokenKind::Word(_))
+            && matches!(self.peek(1).kind, TokenKind::LParen)
+        {
+            let name = self.eat_ident()?;
+            self.eat_kind(&TokenKind::LParen)?;
+            let mut args = Vec::new();
+            if !matches!(self.cur().kind, TokenKind::RParen) {
+                args.push(self.parse_expr()?);
+                while matches!(self.cur().kind, TokenKind::Comma) {
+                    self.eat_kind(&TokenKind::Comma)?;
+                    args.push(self.parse_expr()?);
+                }
+            }
+            self.eat_kind(&TokenKind::RParen)?;
+            return Ok(Stmt::FuncCall { name, args, line: ln });
+        }
+
         Err(format!("Line {}: unexpected token {:?}", ln, self.cur().kind))
     }
 

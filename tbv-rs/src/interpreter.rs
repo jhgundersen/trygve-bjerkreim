@@ -103,6 +103,8 @@ impl Env {
         }
     }
 
+    fn depth(&self) -> usize { self.frames.len() }
+
     fn get(&self, name: &str) -> Option<&Value> {
         for frame in self.frames.iter().rev() {
             if let Some(v) = frame.get(name) {
@@ -188,13 +190,21 @@ impl Interpreter {
         match stmt {
             Stmt::Assign { name, value, .. } => {
                 let v = self.eval(value, env)?;
-                env.set(name, v);
+                env.set(name, v.clone());
+                // Top-level declarations are visible inside functions via globals.
+                if env.depth() == 1 {
+                    self.globals.insert(name.clone(), v);
+                }
                 Ok(None)
             }
 
             Stmt::Reassign { name, value, .. } => {
                 let v = self.eval(value, env)?;
-                env.assign(name, v);
+                env.assign(name, v.clone());
+                // Keep globals in sync for top-level variables.
+                if self.globals.contains_key(name.as_str()) {
+                    self.globals.insert(name.clone(), v);
+                }
                 Ok(None)
             }
 
