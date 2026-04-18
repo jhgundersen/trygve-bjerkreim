@@ -298,9 +298,9 @@ impl Parser {
             return Ok(Stmt::CountLoop { count, var, body, line: ln });
         }
 
-        // Gud har ein plan med <name>(<params>): <body> Det er nok.
-        if self.is_phrase(&["Gud", "har", "ein", "plan", "med"]) {
-            self.eat_phrase(&["Gud", "har", "ein", "plan", "med"])?;
+        // Eg kan <name>(<params>): <body> Det er nok.
+        if self.is_phrase(&["Eg", "kan"]) {
+            self.eat_phrase(&["Eg", "kan"])?;
             let name = self.eat_ident()?;
             self.eat_kind(&TokenKind::LParen)?;
             let mut params = Vec::new();
@@ -319,18 +319,12 @@ impl Parser {
             return Ok(Stmt::FuncDef { name, params, body, line: ln });
         }
 
-        // Bli med til <name> [sin <method>] [med <args>]
+        // Bli med til <name> [med <args>]  — function call statement
         if self.is_phrase(&["Bli", "med", "til"]) {
             self.eat_phrase(&["Bli", "med", "til"])?;
-            let first = self.eat_ident()?;
-            if self.is_word("sin") {
-                self.eat_word("sin")?;
-                let method = self.eat_ident()?;
-                let args = if self.is_word("med") { self.eat_word("med")?; self.parse_arg_list()? } else { vec![] };
-                return Ok(Stmt::MethodCall { obj: first, method, args, line: ln });
-            }
+            let name = self.eat_ident()?;
             let args = if self.is_word("med") { self.eat_word("med")?; self.parse_arg_list()? } else { vec![] };
-            return Ok(Stmt::FuncCall { name: first, args, line: ln });
+            return Ok(Stmt::FuncCall { name, args, line: ln });
         }
 
         // Syng for meg songen om <Klasse> til <var>  — create object and assign
@@ -364,6 +358,20 @@ impl Parser {
             self.eat_phrase(&["Det", "er", "nok"])?;
             self.eat_kind(&TokenKind::Dot)?;
             return Ok(Stmt::TryCatch { try_body, catch_body, line: ln });
+        }
+
+        // <var> vert kalla til å <method> [med <args>]  — method call statement
+        if matches!(self.cur().kind, TokenKind::Word(_))
+            && self.is_word_at(1, "vert")
+            && self.is_word_at(2, "kalla")
+            && self.is_word_at(3, "til")
+            && self.is_word_at(4, "å")
+        {
+            let obj = self.eat_ident()?;
+            self.eat_phrase(&["vert", "kalla", "til", "å"])?;
+            let method = self.eat_ident()?;
+            let args = if self.is_word("med") { self.eat_word("med")?; self.parse_arg_list()? } else { vec![] };
+            return Ok(Stmt::MethodCall { obj, method, args, line: ln });
         }
 
         // <var> sin <field> tek imot <expr>  — field assignment
@@ -566,18 +574,12 @@ impl Parser {
             return self.maybe_index(Expr::New { class });
         }
 
-        // Bli med til <name> [sin <method>] [med <args>]  — call expression
+        // Bli med til <name> [med <args>]  — function call expression
         if self.is_phrase(&["Bli", "med", "til"]) {
             self.eat_phrase(&["Bli", "med", "til"])?;
-            let first = self.eat_ident()?;
-            if self.is_word("sin") {
-                self.eat_word("sin")?;
-                let method = self.eat_ident()?;
-                let args = if self.is_word("med") { self.eat_word("med")?; self.parse_arg_list()? } else { vec![] };
-                return self.maybe_index(Expr::MethodCall { obj: Box::new(Expr::Var(first)), method, args });
-            }
+            let name = self.eat_ident()?;
             let args = if self.is_word("med") { self.eat_word("med")?; self.parse_arg_list()? } else { vec![] };
-            return self.maybe_index(Expr::Call { name: first, args });
+            return self.maybe_index(Expr::Call { name, args });
         }
 
         // Literals
@@ -642,7 +644,7 @@ impl Parser {
             }
         }
 
-        // Variable reference (or name(args) call)
+        // Variable reference, name(args) call, or method call expression
         if let TokenKind::Word(name) = self.cur().kind.clone() {
             self.pos += 1;
             // name(args) call syntax
@@ -659,6 +661,13 @@ impl Parser {
                 self.eat_kind(&TokenKind::RParen)?;
                 return self.maybe_index(Expr::Call { name, args });
             }
+            // <var> vert kalla til å <method> [med <args>]  — method call expression
+            if self.is_phrase(&["vert", "kalla", "til", "å"]) {
+                self.eat_phrase(&["vert", "kalla", "til", "å"])?;
+                let method = self.eat_ident()?;
+                let args = if self.is_word("med") { self.eat_word("med")?; self.parse_arg_list()? } else { vec![] };
+                return self.maybe_index(Expr::MethodCall { obj: Box::new(Expr::Var(name)), method, args });
+            }
             return self.maybe_index(Expr::Var(name));
         }
 
@@ -674,23 +683,8 @@ impl Parser {
                 node = Expr::Index { obj: Box::new(node), idx: Box::new(idx) };
             } else if self.is_word("sin") && matches!(self.peek(1).kind, TokenKind::Word(_)) {
                 self.eat_word("sin")?;
-                let name = self.eat_ident()?;
-                if matches!(self.cur().kind, TokenKind::LParen) {
-                    // obj sin method(args)
-                    self.eat_kind(&TokenKind::LParen)?;
-                    let mut args = Vec::new();
-                    if !matches!(self.cur().kind, TokenKind::RParen) {
-                        args.push(self.parse_expr()?);
-                        while matches!(self.cur().kind, TokenKind::Comma) {
-                            self.eat_kind(&TokenKind::Comma)?;
-                            args.push(self.parse_expr()?);
-                        }
-                    }
-                    self.eat_kind(&TokenKind::RParen)?;
-                    node = Expr::MethodCall { obj: Box::new(node), method: name, args };
-                } else {
-                    node = Expr::Field { obj: Box::new(node), field: name };
-                }
+                let field = self.eat_ident()?;
+                node = Expr::Field { obj: Box::new(node), field };
             } else {
                 break;
             }

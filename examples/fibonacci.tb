@@ -1,6 +1,6 @@
 – – Skriv dei 15 fyrste fibonacci-tala – –
 
-Gud har ein plan med fibonacci(n):
+Eg kan fibonacci(n):
     Du kjem ikkje utanom n er mindre enn 2:
         Takk at du tok mine byrder: n
     Det er nok.

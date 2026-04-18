@@ -261,10 +261,10 @@ atter ein gong.
 
 ## Functions
 
-**Define** — *"God has a plan for [name]"*
+**Define** — *"I can [name]"*
 
 ```
-Gud har ein plan med kvadrat(n):
+Eg kan kvadrat(n):
     Takk at du tok mine byrder: n gongar n
 Det er nok.
 ```
@@ -378,18 +378,18 @@ Songen Punkt:
     lat x vera 0
     lat y vera 0
 
-    Gud har ein plan med set(nx, ny):
+    Eg kan setje(nx, ny):
         sjølv sin x tek imot nx
         sjølv sin y tek imot ny
     Det er nok.
 
-    Gud har ein plan med distanse():
+    Eg kan distanse():
         Takk at du tok mine byrder: sjølv sin x gongar sjølv sin x og sjølv sin y gongar sjølv sin y
     Det er nok.
 Det er nok.
 ```
 
-Fields are declared with `lat` at the top of the class body. Methods use `Gud har ein plan med`. Inside a method, `sjølv` refers to the current object.
+Fields are declared with `lat` at the top of the class body. Methods use `Eg kan` with verb infinitives. Inside a method, `sjølv` refers to the current object.
 
 **Create an instance** — *"Sing for me the song of [Class] to [var]"*
 
@@ -412,13 +412,13 @@ p sin x tek imot 10
 **Call a method (statement)**
 
 ```
-Bli med til p sin set med 3, 7
+p vert kalla til å setje med 3, 7
 ```
 
 **Call a method (expression)**
 
 ```
-Syng ut: Bli med til p sin distanse
+Syng ut: p vert kalla til å distanse
 ```
 
 Objects have reference semantics — mutations inside methods persist on the original.

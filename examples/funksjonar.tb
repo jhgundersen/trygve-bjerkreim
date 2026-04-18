@@ -1,17 +1,17 @@
 – – Funksjonar – –
 
-Gud har ein plan med kvadrat(n):
+Eg kan kvadrat(n):
     Takk at du tok mine byrder: n gongar n
 Det er nok.
 
-Gud har ein plan med fakultet(n):
+Eg kan fakultet(n):
     Du kjem ikkje utanom n er mindre enn 2:
         Takk at du tok mine byrder: 1
     Det er nok.
     Takk at du tok mine byrder: n gongar Bli med til fakultet med n utan 1
 Det er nok.
 
-Gud har ein plan med primtal(n):
+Eg kan primtal(n):
     Du kjem ikkje utanom n er mindre enn 2:
         Takk at du tok mine byrder: nei
     Det er nok.

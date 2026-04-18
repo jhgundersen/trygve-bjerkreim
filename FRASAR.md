@@ -21,7 +21,7 @@ Allereie brukte frasar er merka ✓.
 | `kvar <var> i <iterable>:` | for-kvar-løkke | — |
 | `Evig i lysets rike:` | uendeleg løkke | — |
 | `Topp attom toppar <n> gongar:` | teljeløkke | — |
-| `Gud har ein plan med <namn>(params):` | funksjonsdefinisjon | 315 *Gud har ein plan med ditt liv* |
+| `Eg kan <namn>(params):` | funksjonsdefinisjon | — "I can [verb]", verbs in Norwegian infinitive form |
 | `Bli med til <namn> med <args>` | funksjonskall | 140 *Bli med, bli med til livet* |
 | `Takk at du tok mine byrder:` | return | 288 *Takk at du tok mine byrder* |
 | `Prøv å få gjort det du kan:` | try | 749 *Prøv å få gjort det du kan* |
@@ -34,7 +34,7 @@ Allereie brukte frasar er merka ✓.
 | `Syng for meg songen om <Namn> til <var>` | lag objekt | — "Sing for me the song of [Class] to [var]" |
 | `<obj> sin <felt>` | les felt | — Norwegian possessive "sin" |
 | `<obj> sin <felt> tek imot <val>` | skriv felt | — extends existing reassign |
-| `Bli med til <obj> sin <metode> med <args>` | metodekall | — extends existing function call |
+| `<obj> vert kalla til å <metode> [med <args>]` | metodekall | — "is called to [verb]", Norwegian infinitive marker `å` before method name |
 | `sjølv` | sjølv-referanse i metodar | — Norwegian "self/itself" |
 | `Rop ut:` | kast feil (raise) | 760 *Skund deg Guds folk* — "Rop ut til kvart eit folkeslag" |
 | `Set vakt:` | assert | 527 *Kor brukar du di dyre tid* — "Set då vakt ved hjartans port" |

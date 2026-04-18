@@ -4,17 +4,17 @@ Songen Punkt:
     lat x vera 0
     lat y vera 0
 
-    Gud har ein plan med set(nx, ny):
+    Eg kan setje(nx, ny):
         sjølv sin x tek imot nx
         sjølv sin y tek imot ny
     Det er nok.
 
-    Gud har ein plan med flytt(dx, dy):
+    Eg kan flytte(dx, dy):
         sjølv sin x tek imot sjølv sin x og dx
         sjølv sin y tek imot sjølv sin y og dy
     Det er nok.
 
-    Gud har ein plan med vis():
+    Eg kan vise():
         Syng ut: «(» og sjølv sin x og «, » og sjølv sin y og «)»
     Det er nok.
 Det er nok.
@@ -22,15 +22,15 @@ Det er nok.
 Syng for meg songen om Punkt til a
 Syng for meg songen om Punkt til b
 
-Bli med til a sin set med 1, 2
-Bli med til b sin set med 5, 8
+a vert kalla til å setje med 1, 2
+b vert kalla til å setje med 5, 8
 
 Syng ut: «Punkt a:»
-Bli med til a sin vis
+a vert kalla til å vise
 
 Syng ut: «Punkt b:»
-Bli med til b sin vis
+b vert kalla til å vise
 
-Bli med til a sin flytt med 4, 6
-Syng ut: «Punkt a etter flytt(4,6):»
-Bli med til a sin vis
+a vert kalla til å flytte med 4, 6
+Syng ut: «Punkt a etter flytte(4,6):»
+a vert kalla til å vise
