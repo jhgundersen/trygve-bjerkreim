@@ -20,7 +20,8 @@ pub enum Value {
     Bool(bool),
     Null,
     List(Vec<Value>),
-    Func { params: Vec<String>, body: Vec<Stmt> },
+    Func   { params: Vec<String>, body: Vec<Stmt> },
+    Object { id: usize, class: String },
 }
 
 impl fmt::Display for Value {
@@ -45,7 +46,8 @@ impl fmt::Display for Value {
                 }
                 write!(f, "]")
             }
-            Value::Func { .. } => write!(f, "<funksjon>"),
+            Value::Func { .. }           => write!(f, "<funksjon>"),
+            Value::Object { class, .. }  => write!(f, "<{}>", class),
         }
     }
 }
@@ -132,17 +134,38 @@ impl Env {
 }
 
 // ─────────────────────────────────────────────────────────────────
+// Object heap + class registry
+// ─────────────────────────────────────────────────────────────────
+
+struct HeapObj {
+    class:  String,
+    fields: HashMap<String, Value>,
+}
+
+struct StoredClass {
+    field_defaults: Vec<(String, Expr)>,
+    methods:        HashMap<String, (Vec<String>, Vec<Stmt>)>,
+}
+
+// ─────────────────────────────────────────────────────────────────
 // Interpreter
 // ─────────────────────────────────────────────────────────────────
 
 pub struct Interpreter {
-    globals: HashMap<String, Value>,
+    globals:  HashMap<String, Value>,
     response: Option<String>,
+    heap:     Vec<HeapObj>,
+    classes:  HashMap<String, StoredClass>,
 }
 
 impl Interpreter {
     pub fn new() -> Self {
-        Interpreter { globals: HashMap::new(), response: None }
+        Interpreter {
+            globals:  HashMap::new(),
+            response: None,
+            heap:     Vec::new(),
+            classes:  HashMap::new(),
+        }
     }
 
     pub fn run(&mut self, program: &Program) -> Result<(), String> {
@@ -391,6 +414,43 @@ impl Interpreter {
                 Ok(None)
             }
 
+            Stmt::ClassDef { name, body, .. } => {
+                let mut field_defaults = Vec::new();
+                let mut methods = HashMap::new();
+                for stmt in body {
+                    match stmt {
+                        Stmt::Assign { name: f, value, .. } =>
+                            field_defaults.push((f.clone(), value.clone())),
+                        Stmt::FuncDef { name: m, params, body: mb, .. } =>
+                            { methods.insert(m.clone(), (params.clone(), mb.clone())); }
+                        _ => return Err("Klasse kan berre innehalda felt og metodar".into()),
+                    }
+                }
+                self.classes.insert(name.clone(), StoredClass { field_defaults, methods });
+                Ok(None)
+            }
+
+            Stmt::FieldAssign { obj, field, value, .. } => {
+                let id = match env.get(obj).or_else(|| self.globals.get(obj)) {
+                    Some(Value::Object { id, .. }) => *id,
+                    _ => return Err(format!("'{}' er ikkje eit objekt", obj)),
+                };
+                let v = self.eval(value, env)?;
+                self.heap[id].fields.insert(field.clone(), v);
+                Ok(None)
+            }
+
+            Stmt::MethodCall { obj, method, args, line } => {
+                let (id, class) = match env.get(obj).or_else(|| self.globals.get(obj)) {
+                    Some(Value::Object { id, class }) => (*id, class.clone()),
+                    _ => return Err(format!("'{}' er ikkje eit objekt", obj)),
+                };
+                let mut vals = Vec::new();
+                for a in args { vals.push(self.eval(a, env)?); }
+                self.call_method(id, &class, method, vals, *line)?;
+                Ok(None)
+            }
+
             Stmt::TryCatch { try_body, catch_body, .. } => {
                 env.push();
                 let res = self.exec_block(try_body, env);
@@ -456,6 +516,41 @@ impl Interpreter {
                 }
             }
 
+            Expr::New { class } => {
+                let defaults: Vec<(String, Expr)> = self.classes.get(class)
+                    .ok_or_else(|| format!("klasse '{}' er ikkje definert", class))?
+                    .field_defaults.clone();
+                let id = self.heap.len();
+                self.heap.push(HeapObj { class: class.clone(), fields: HashMap::new() });
+                let empty = Env::new();
+                for (fname, default_expr) in defaults {
+                    let v = self.eval(&default_expr, &empty)?;
+                    self.heap[id].fields.insert(fname, v);
+                }
+                Ok(Value::Object { id, class: class.clone() })
+            }
+
+            Expr::Field { obj, field } => {
+                let obj_val = self.eval(obj, env)?;
+                match obj_val {
+                    Value::Object { id, .. } => self.heap[id].fields.get(field)
+                        .cloned()
+                        .ok_or_else(|| format!("felt '{}' finst ikkje", field)),
+                    other => Err(format!("kan ikkje lesa felt frå {}", other)),
+                }
+            }
+
+            Expr::MethodCall { obj, method, args } => {
+                let obj_val = self.eval(obj, env)?;
+                let (id, class) = match obj_val {
+                    Value::Object { id, class } => (id, class),
+                    other => return Err(format!("kan ikkje kalla metode på {}", other)),
+                };
+                let mut vals = Vec::new();
+                for a in args { vals.push(self.eval(a, env)?); }
+                self.call_method(id, &class, method, vals, 0)
+            }
+
             Expr::BinOp { op, left, right } => {
                 let l = self.eval(left, env)?;
                 let r = self.eval(right, env)?;
@@ -474,6 +569,24 @@ impl Interpreter {
                 }
                 self.call_func(name, vals, 0)
             }
+        }
+    }
+
+    fn call_method(&mut self, id: usize, class: &str, method: &str, args: Vec<Value>, _line: usize) -> Result<Value, String> {
+        let (params, body) = self.classes.get(class)
+            .ok_or_else(|| format!("klasse '{}' finst ikkje", class))?
+            .methods.get(method)
+            .ok_or_else(|| format!("'{}' har ingen metode '{}'", class, method))?
+            .clone();
+        if args.len() != params.len() {
+            return Err(format!("{}.{}: ventar {} argument, fekk {}", class, method, params.len(), args.len()));
+        }
+        let mut menv = Env::new();
+        menv.set("sjølv", Value::Object { id, class: class.to_string() });
+        for (p, a) in params.iter().zip(args) { menv.set(p, a); }
+        match self.exec_block(&body, &mut menv)? {
+            Some(Signal::Return(v)) => Ok(v),
+            _                       => Ok(Value::Null),
         }
     }
 

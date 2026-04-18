@@ -1,0 +1,36 @@
+– – Objekt og klassar – –
+
+Songen Punkt:
+    lat x vera 0
+    lat y vera 0
+
+    Gud har ein plan med set(nx, ny):
+        sjølv sin x tek imot nx
+        sjølv sin y tek imot ny
+    Det er nok.
+
+    Gud har ein plan med flytt(dx, dy):
+        sjølv sin x tek imot sjølv sin x og dx
+        sjølv sin y tek imot sjølv sin y og dy
+    Det er nok.
+
+    Gud har ein plan med vis():
+        Syng ut: «(» og sjølv sin x og «, » og sjølv sin y og «)»
+    Det er nok.
+Det er nok.
+
+Syng for meg songen om Punkt til a
+Syng for meg songen om Punkt til b
+
+Bli med til a sin set med 1, 2
+Bli med til b sin set med 5, 8
+
+Syng ut: «Punkt a:»
+Bli med til a sin vis
+
+Syng ut: «Punkt b:»
+Bli med til b sin vis
+
+Bli med til a sin flytt med 4, 6
+Syng ut: «Punkt a etter flytt(4,6):»
+Bli med til a sin vis

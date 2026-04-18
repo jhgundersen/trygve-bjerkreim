@@ -30,6 +30,12 @@ Allereie brukte frasar er merka ✓.
 | `atter ein gong.` | continue | — ("Atter ein gong ser eg") |
 | `Lytt ved port <n>:` | webtenar | — |
 | `Svar med:` | HTTP-svar | — |
+| `Songen <Namn>:` | klassedefinisjon | — "Songen" = the song (a song/blueprint for objects) |
+| `Syng for meg songen om <Namn> til <var>` | lag objekt | — "Sing for me the song of [Class] to [var]" |
+| `<obj> sin <felt>` | les felt | — Norwegian possessive "sin" |
+| `<obj> sin <felt> tek imot <val>` | skriv felt | — extends existing reassign |
+| `Bli med til <obj> sin <metode> med <args>` | metodekall | — extends existing function call |
+| `sjølv` | sjølv-referanse i metodar | — Norwegian "self/itself" |
 | `Rop ut:` | kast feil (raise) | 760 *Skund deg Guds folk* — "Rop ut til kvart eit folkeslag" |
 | `Set vakt:` | assert | 527 *Kor brukar du di dyre tid* — "Set då vakt ved hjartans port" |
 | `Kvil eit augneblink:` | sleep | 238 *Blott en dag* — "eit øyeblikk om gangen" |

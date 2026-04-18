@@ -351,17 +351,77 @@ Kvil eit augneblink: 0.5
 *"Listen at port [n]"* — starts an HTTP server. Sets `metode`, `vegen`, and `kropp`
 for each incoming request. *"Answer with [expr]"* sends the response.
 
+Use `Men om <cond>:` chains for routing — `Svar med:` does not stop execution.
+
 ```
 Lytt ved port 8080:
     Du kjem ikkje utanom vegen er «/hei»:
         Svar med: «Hei, verd!»
+    Men om vegen er «/»:
+        Svar med: «Velkomen til Trygve Bjerkreim sin tenar»
+    Men om ikkje:
+        Svar med: «404 – ikkje funne: » og vegen
     Det er nok.
-    Svar med: «404 – ikkje funne: » og vegen
 Det er nok.
 ```
 
 The server runs until the process is killed. Each request gets a fresh scope.
-`Svar med:` may be called once; the last value wins if called multiple times.
+
+---
+
+## Objects
+
+**Define a class** — *"The song [Name]"*
+
+```
+Songen Punkt:
+    lat x vera 0
+    lat y vera 0
+
+    Gud har ein plan med set(nx, ny):
+        sjølv sin x tek imot nx
+        sjølv sin y tek imot ny
+    Det er nok.
+
+    Gud har ein plan med distanse():
+        Takk at du tok mine byrder: sjølv sin x gongar sjølv sin x og sjølv sin y gongar sjølv sin y
+    Det er nok.
+Det er nok.
+```
+
+Fields are declared with `lat` at the top of the class body. Methods use `Gud har ein plan med`. Inside a method, `sjølv` refers to the current object.
+
+**Create an instance** — *"Sing for me the song of [Class] to [var]"*
+
+```
+Syng for meg songen om Punkt til p
+```
+
+**Read a field** — Norwegian possessive `sin`
+
+```
+Syng ut: p sin x
+```
+
+**Write a field**
+
+```
+p sin x tek imot 10
+```
+
+**Call a method (statement)**
+
+```
+Bli med til p sin set med 3, 7
+```
+
+**Call a method (expression)**
+
+```
+Syng ut: Bli med til p sin distanse
+```
+
+Objects have reference semantics — mutations inside methods persist on the original.
 
 ---
 
@@ -419,6 +479,7 @@ Use parentheses `(…)` to override precedence.
 | `examples/lister.tb` | Lists and iteration |
 | `examples/funksjonar.tb` | Functions, factorial, primality |
 | `examples/webtenar.tb` | Simple HTTP web server |
+| `examples/klasse.tb` | Objects and methods |
 
 ---
 

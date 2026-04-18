@@ -35,11 +35,14 @@ pub enum Stmt {
     TryCatch  { try_body: Vec<Stmt>, catch_body: Vec<Stmt>, line: usize },
     Break     { line: usize },
     Continue  { line: usize },
-    Serve     { port: Expr, body: Vec<Stmt>, line: usize },
-    Respond   { value: Expr, line: usize },
-    Raise     { value: Expr, line: usize },
-    Assert    { cond: Expr, line: usize },
-    Sleep     { secs: Expr, line: usize },
+    Serve       { port: Expr, body: Vec<Stmt>, line: usize },
+    Respond     { value: Expr, line: usize },
+    Raise       { value: Expr, line: usize },
+    Assert      { cond: Expr, line: usize },
+    Sleep       { secs: Expr, line: usize },
+    ClassDef    { name: String, body: Vec<Stmt>, line: usize },
+    FieldAssign { obj: String, field: String, value: Expr, line: usize },
+    MethodCall  { obj: String, method: String, args: Vec<Expr>, line: usize },
 }
 
 #[derive(Debug, Clone)]
@@ -52,9 +55,12 @@ pub enum Expr {
     Var(String),
     List(Vec<Expr>),
     Index { obj: Box<Expr>, idx: Box<Expr> },
-    BinOp { op: BinOpKind, left: Box<Expr>, right: Box<Expr> },
+    BinOp      { op: BinOpKind, left: Box<Expr>, right: Box<Expr> },
     Not(Box<Expr>),
-    Call { name: String, args: Vec<Expr> },
+    Call       { name: String, args: Vec<Expr> },
+    New        { class: String },
+    Field      { obj: Box<Expr>, field: String },
+    MethodCall { obj: Box<Expr>, method: String, args: Vec<Expr> },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -311,17 +317,38 @@ impl Parser {
             return Ok(Stmt::FuncDef { name, params, body, line: ln });
         }
 
-        // Bli med til <name> [med <args>]
+        // Bli med til <name> [sin <method>] [med <args>]
         if self.is_phrase(&["Bli", "med", "til"]) {
             self.eat_phrase(&["Bli", "med", "til"])?;
+            let first = self.eat_ident()?;
+            if self.is_word("sin") {
+                self.eat_word("sin")?;
+                let method = self.eat_ident()?;
+                let args = if self.is_word("med") { self.eat_word("med")?; self.parse_arg_list()? } else { vec![] };
+                return Ok(Stmt::MethodCall { obj: first, method, args, line: ln });
+            }
+            let args = if self.is_word("med") { self.eat_word("med")?; self.parse_arg_list()? } else { vec![] };
+            return Ok(Stmt::FuncCall { name: first, args, line: ln });
+        }
+
+        // Syng for meg songen om <Klasse> til <var>  — create object and assign
+        if self.is_phrase(&["Syng", "for", "meg", "songen", "om"]) {
+            self.eat_phrase(&["Syng", "for", "meg", "songen", "om"])?;
+            let class = self.eat_ident()?;
+            self.eat_word("til")?;
             let name = self.eat_ident()?;
-            let args = if self.is_word("med") {
-                self.eat_word("med")?;
-                self.parse_arg_list()?
-            } else {
-                Vec::new()
-            };
-            return Ok(Stmt::FuncCall { name, args, line: ln });
+            return Ok(Stmt::Assign { name, value: Expr::New { class }, line: ln });
+        }
+
+        // Songen <Namn>: <body> Det er nok.
+        if self.is_word("Songen") {
+            self.eat_word("Songen")?;
+            let name = self.eat_ident()?;
+            self.eat_kind(&TokenKind::Colon)?;
+            let body = self.parse_block()?;
+            self.eat_phrase(&["Det", "er", "nok"])?;
+            self.eat_kind(&TokenKind::Dot)?;
+            return Ok(Stmt::ClassDef { name, body, line: ln });
         }
 
         // Prøv å få gjort det du kan: <try> Ver ikkje redd: <catch> Det er nok.
@@ -335,6 +362,21 @@ impl Parser {
             self.eat_phrase(&["Det", "er", "nok"])?;
             self.eat_kind(&TokenKind::Dot)?;
             return Ok(Stmt::TryCatch { try_body, catch_body, line: ln });
+        }
+
+        // <var> sin <field> tek imot <expr>  — field assignment
+        if matches!(self.cur().kind, TokenKind::Word(_))
+            && self.is_word_at(1, "sin")
+            && matches!(self.peek(2).kind, TokenKind::Word(_))
+            && self.is_word_at(3, "tek")
+            && self.is_word_at(4, "imot")
+        {
+            let obj = self.eat_ident()?;
+            self.eat_word("sin")?;
+            let field = self.eat_ident()?;
+            self.eat_phrase(&["tek", "imot"])?;
+            let value = self.parse_expr()?;
+            return Ok(Stmt::FieldAssign { obj, field, value, line: ln });
         }
 
         // <name> tek imot <expr>
@@ -496,17 +538,25 @@ impl Parser {
             return Ok(Expr::Not(Box::new(self.parse_primary()?)));
         }
 
-        // Bli med til <name> [med <args>]  — function call expression
+        // Syng for meg songen om <ClassName>  — instantiate object
+        if self.is_phrase(&["Syng", "for", "meg", "songen", "om"]) {
+            self.eat_phrase(&["Syng", "for", "meg", "songen", "om"])?;
+            let class = self.eat_ident()?;
+            return self.maybe_index(Expr::New { class });
+        }
+
+        // Bli med til <name> [sin <method>] [med <args>]  — call expression
         if self.is_phrase(&["Bli", "med", "til"]) {
             self.eat_phrase(&["Bli", "med", "til"])?;
-            let name = self.eat_ident()?;
-            let args = if self.is_word("med") {
-                self.eat_word("med")?;
-                self.parse_arg_list()?
-            } else {
-                Vec::new()
-            };
-            return self.maybe_index(Expr::Call { name, args });
+            let first = self.eat_ident()?;
+            if self.is_word("sin") {
+                self.eat_word("sin")?;
+                let method = self.eat_ident()?;
+                let args = if self.is_word("med") { self.eat_word("med")?; self.parse_arg_list()? } else { vec![] };
+                return self.maybe_index(Expr::MethodCall { obj: Box::new(Expr::Var(first)), method, args });
+            }
+            let args = if self.is_word("med") { self.eat_word("med")?; self.parse_arg_list()? } else { vec![] };
+            return self.maybe_index(Expr::Call { name: first, args });
         }
 
         // Literals
@@ -595,11 +645,34 @@ impl Parser {
     }
 
     fn maybe_index(&mut self, mut node: Expr) -> Result<Expr, String> {
-        while matches!(self.cur().kind, TokenKind::LBracket) {
-            self.eat_kind(&TokenKind::LBracket)?;
-            let idx = self.parse_expr()?;
-            self.eat_kind(&TokenKind::RBracket)?;
-            node = Expr::Index { obj: Box::new(node), idx: Box::new(idx) };
+        loop {
+            if matches!(self.cur().kind, TokenKind::LBracket) {
+                self.eat_kind(&TokenKind::LBracket)?;
+                let idx = self.parse_expr()?;
+                self.eat_kind(&TokenKind::RBracket)?;
+                node = Expr::Index { obj: Box::new(node), idx: Box::new(idx) };
+            } else if self.is_word("sin") && matches!(self.peek(1).kind, TokenKind::Word(_)) {
+                self.eat_word("sin")?;
+                let name = self.eat_ident()?;
+                if matches!(self.cur().kind, TokenKind::LParen) {
+                    // obj sin method(args)
+                    self.eat_kind(&TokenKind::LParen)?;
+                    let mut args = Vec::new();
+                    if !matches!(self.cur().kind, TokenKind::RParen) {
+                        args.push(self.parse_expr()?);
+                        while matches!(self.cur().kind, TokenKind::Comma) {
+                            self.eat_kind(&TokenKind::Comma)?;
+                            args.push(self.parse_expr()?);
+                        }
+                    }
+                    self.eat_kind(&TokenKind::RParen)?;
+                    node = Expr::MethodCall { obj: Box::new(node), method: name, args };
+                } else {
+                    node = Expr::Field { obj: Box::new(node), field: name };
+                }
+            } else {
+                break;
+            }
         }
         Ok(node)
     }
