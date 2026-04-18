@@ -60,14 +60,22 @@ pub fn tokenize(source: &str) -> Result<Vec<Token>, String> {
             // String «...»
             if c == '«' {
                 i += 1;
-                let start = i;
+                let mut s = String::new();
                 while i < chars.len() && chars[i] != '»' {
-                    i += 1;
+                    if chars[i] == '\\' && i + 1 < chars.len() {
+                        match chars[i + 1] {
+                            'n' => { s.push('\n'); i += 2; }
+                            't' => { s.push('\t'); i += 2; }
+                            _   => { s.push(chars[i]); i += 1; }
+                        }
+                    } else {
+                        s.push(chars[i]);
+                        i += 1;
+                    }
                 }
                 if i >= chars.len() {
                     return Err(format!("Line {}: unterminated string «", lineno + 1));
                 }
-                let s: String = chars[start..i].iter().collect();
                 tokens.push(Token { kind: TokenKind::Str(s), line: lineno + 1 });
                 i += 1; // skip »
                 continue;
