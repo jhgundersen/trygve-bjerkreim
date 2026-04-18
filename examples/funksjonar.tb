@@ -1,28 +1,28 @@
 – – Funksjonar – –
 
 Eg kan kvadrat(n):
-    Takk at du tok mine byrder: n gongar n
+    Eit fullført verk: n gongar n
 Det er nok.
 
 Eg kan fakultet(n):
     Du kjem ikkje utanom n er mindre enn 2:
-        Takk at du tok mine byrder: 1
+        Eit fullført verk: 1
     Det er nok.
-    Takk at du tok mine byrder: n gongar Bli med til fakultet med n utan 1
+    Eit fullført verk: n gongar Bli med til fakultet med n utan 1
 Det er nok.
 
 Eg kan primtal(n):
     Du kjem ikkje utanom n er mindre enn 2:
-        Takk at du tok mine byrder: nei
+        Eit fullført verk: nei
     Det er nok.
     lat d vera 2
     Eit øyeblikk om gangen, medan d gongar d er mindre enn n og 1:
         Du kjem ikkje utanom resten av n delt på d er 0:
-            Takk at du tok mine byrder: nei
+            Eit fullført verk: nei
         Det er nok.
         d tek imot d og 1
     Det er nok.
-    Takk at du tok mine byrder: ja
+    Eit fullført verk: ja
 Det er nok.
 
 Syng ut: «5 i kvadrat: » og Bli med til kvadrat med 5

@@ -2,11 +2,11 @@
 
 Eg kan fibonacci(n):
     Du kjem ikkje utanom n er mindre enn 2:
-        Takk at du tok mine byrder: n
+        Eit fullført verk: n
     Det er nok.
     lat a vera Bli med til fibonacci med n utan 1
     lat b vera Bli med til fibonacci med n utan 2
-    Takk at du tok mine byrder: a og b
+    Eit fullført verk: a og b
 Det er nok.
 
 lat i vera 0

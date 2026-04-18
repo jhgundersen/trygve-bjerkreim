@@ -265,14 +265,14 @@ atter ein gong.
 
 ```
 Eg kan kvadrat(n):
-    Takk at du tok mine byrder: n gongar n
+    Eit fullført verk: n gongar n
 Det er nok.
 ```
 
-**Return** — *"Thanks that you took my burdens"*
+**Return** — *"A completed work"*
 
 ```
-Takk at du tok mine byrder: n gongar n
+Eit fullført verk: n gongar n
 ```
 
 **Call as statement** — *"Come along to [name] with [args]"*
@@ -294,7 +294,7 @@ lat resultat vera Bli med til kvadrat med n
 Syng ut: kvadrat(7)
 ```
 
-Functions without `Takk at du tok mine byrder` return `tome hender` (null).
+Functions without `Eit fullført verk:` return `tome hender` (null).
 
 ---
 
@@ -384,7 +384,7 @@ Songen Punkt:
     Det er nok.
 
     Eg kan berekne avstand():
-        Takk at du tok mine byrder: sjølv sin x gongar sjølv sin x og sjølv sin y gongar sjølv sin y
+        Eit fullført verk: sjølv sin x gongar sjølv sin x og sjølv sin y gongar sjølv sin y
     Det er nok.
 Det er nok.
 ```

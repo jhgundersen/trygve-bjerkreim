@@ -23,7 +23,7 @@ Allereie brukte frasar er merka ✓.
 | `Topp attom toppar <n> gongar:` | teljeløkke | — |
 | `Eg kan <namn>(params):` | funksjonsdefinisjon | — "I can [verb]", verbs in Norwegian infinitive form |
 | `Bli med til <namn> med <args>` | funksjonskall | 140 *Bli med, bli med til livet* |
-| `Takk at du tok mine byrder:` | return | 288 *Takk at du tok mine byrder* |
+| `Eit fullført verk:` | return | — "A completed work" |
 | `Prøv å få gjort det du kan:` | try | 749 *Prøv å få gjort det du kan* |
 | `Ver ikkje redd:` | catch | 387 *Ver ikkje redd* |
 | `stansar stilt.` | break | — ("og skyttelen stansar stilt") |

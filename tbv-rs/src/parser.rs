@@ -258,9 +258,9 @@ impl Parser {
             return Ok(Stmt::Print { value, line: ln });
         }
 
-        // Takk at du tok mine byrder: <expr>
-        if self.is_phrase(&["Takk", "at", "du", "tok", "mine", "byrder"]) {
-            self.eat_phrase(&["Takk", "at", "du", "tok", "mine", "byrder"])?;
+        // Eit fullført verk: <expr>
+        if self.is_phrase(&["Eit", "fullført", "verk"]) {
+            self.eat_phrase(&["Eit", "fullført", "verk"])?;
             self.eat_kind(&TokenKind::Colon)?;
             let value = self.parse_expr()?;
             return Ok(Stmt::Return { value, line: ln });
