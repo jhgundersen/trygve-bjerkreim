@@ -437,9 +437,14 @@ impl Interpreter {
                     env.pop();
                     // Send response
                     let resp = self.response.take().unwrap_or_default();
+                    let content_type = if resp.trim_start().starts_with("<!") || resp.trim_start().starts_with('<') {
+                        "text/html; charset=utf-8"
+                    } else {
+                        "text/plain; charset=utf-8"
+                    };
                     let http = format!(
-                        "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nContent-Type: text/plain; charset=utf-8\r\nConnection: close\r\n\r\n{}",
-                        resp.len(), resp
+                        "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nContent-Type: {}\r\nConnection: close\r\n\r\n{}",
+                        resp.len(), content_type, resp
                     );
                     stream.write_all(http.as_bytes()).ok();
                 }
