@@ -9,12 +9,12 @@ Songen Punkt:
         sjølv sin y tek imot ny
     Det er nok.
 
-    Eg kan flytte(dx, dy):
+    Eg kan flytte posisjon(dx, dy):
         sjølv sin x tek imot sjølv sin x og dx
         sjølv sin y tek imot sjølv sin y og dy
     Det er nok.
 
-    Eg kan vise():
+    Eg kan vise posisjon():
         Syng ut: «(» og sjølv sin x og «, » og sjølv sin y og «)»
     Det er nok.
 
@@ -30,14 +30,14 @@ a vert kalla til å setje posisjon med 1, 2
 b vert kalla til å setje posisjon med 5, 8
 
 Syng ut: «Punkt a:»
-a vert kalla til å vise
+a vert kalla til å vise posisjon
 
 Syng ut: «Punkt b:»
-b vert kalla til å vise
+b vert kalla til å vise posisjon
 
-a vert kalla til å flytte med 4, 6
-Syng ut: «Punkt a etter flytte(4,6):»
-a vert kalla til å vise
+a vert kalla til å flytte posisjon med 4, 6
+Syng ut: «Punkt a etter flytte posisjon(4,6):»
+a vert kalla til å vise posisjon
 
 Syng ut: «Avstand frå origo (kvadrert):»
 Syng ut: a vert kalla til å berekne avstand
