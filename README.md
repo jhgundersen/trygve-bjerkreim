@@ -275,23 +275,12 @@ Det er nok.
 Eit fullført verk: n gongar n
 ```
 
-**Call as statement** — *"Come along to [name] with [args]"*
+**Call**
 
 ```
-Bli med til kvadrat med 5
-```
-
-**Call as expression** (same syntax, inside an expression):
-
-```
-Syng ut: Bli med til kvadrat med 7
-lat resultat vera Bli med til kvadrat med n
-```
-
-**Call with parentheses** (alternative, works for both builtins and functions):
-
-```
+kvadrat(5)
 Syng ut: kvadrat(7)
+lat resultat vera kvadrat(n)
 ```
 
 Functions without `Eit fullført verk:` return `tome hender` (null).
@@ -480,10 +469,10 @@ Use parentheses `(…)` to override precedence.
 ## Notes
 
 - **`og` is addition**, not boolean AND. For compound conditions, nest `Du kjem ikkje utanom` blocks.
-- Function call arguments are greedy. Store intermediate results in variables or use parentheses:
+- Function call arguments are greedy. Store intermediate results in variables when chaining:
   ```
-  lat x vera Bli med til f med a
-  lat y vera Bli med til g med b
+  lat x vera f(a)
+  lat y vera g(b)
   Syng ut: x og y
   ```
 

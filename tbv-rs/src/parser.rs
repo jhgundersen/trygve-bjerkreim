@@ -360,13 +360,6 @@ impl Parser {
             return Ok(Stmt::FuncDef { name, params, body, line: ln });
         }
 
-        // Bli med til <name> [med <args>]  — function call statement
-        if self.is_phrase(&["Bli", "med", "til"]) {
-            self.eat_phrase(&["Bli", "med", "til"])?;
-            let name = self.eat_ident()?;
-            let args = if self.is_word("med") { self.eat_word("med")?; self.parse_arg_list()? } else { vec![] };
-            return Ok(Stmt::FuncCall { name, args, line: ln });
-        }
 
         // Syng for meg songen om <Klasse> til <var>  — create object and assign
         if self.is_phrase(&["Syng", "for", "meg", "songen", "om"]) {
@@ -613,14 +606,6 @@ impl Parser {
             self.eat_phrase(&["Syng", "for", "meg", "songen", "om"])?;
             let class = self.eat_ident()?;
             return self.maybe_index(Expr::New { class });
-        }
-
-        // Bli med til <name> [med <args>]  — function call expression
-        if self.is_phrase(&["Bli", "med", "til"]) {
-            self.eat_phrase(&["Bli", "med", "til"])?;
-            let name = self.eat_ident()?;
-            let args = if self.is_word("med") { self.eat_word("med")?; self.parse_arg_list()? } else { vec![] };
-            return self.maybe_index(Expr::Call { name, args });
         }
 
         // Literals

@@ -8,7 +8,7 @@ Eg kan fakultet(n):
     Du kjem ikkje utanom n er mindre enn 2:
         Eit fullført verk: 1
     Det er nok.
-    Eit fullført verk: n gongar Bli med til fakultet med n utan 1
+    Eit fullført verk: n gongar fakultet(n utan 1)
 Det er nok.
 
 Eg kan primtal(n):
@@ -25,14 +25,14 @@ Eg kan primtal(n):
     Eit fullført verk: ja
 Det er nok.
 
-Syng ut: «5 i kvadrat: » og Bli med til kvadrat med 5
-Syng ut: «7! = » og Bli med til fakultet med 7
+Syng ut: «5 i kvadrat: » og kvadrat(5)
+Syng ut: «7! = » og fakultet(7)
 
 Syng ut: «»
 Syng ut: «Primtal opp til 30:»
 lat n vera 2
 Eit øyeblikk om gangen, medan n er mindre enn 31:
-    Du kjem ikkje utanom Bli med til primtal med n:
+    Du kjem ikkje utanom primtal(n):
         Syng ut: n
     Det er nok.
     n tek imot n og 1

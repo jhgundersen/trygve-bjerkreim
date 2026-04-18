@@ -4,14 +4,14 @@ Eg kan fibonacci(n):
     Du kjem ikkje utanom n er mindre enn 2:
         Eit fullført verk: n
     Det er nok.
-    lat a vera Bli med til fibonacci med n utan 1
-    lat b vera Bli med til fibonacci med n utan 2
+    lat a vera fibonacci(n utan 1)
+    lat b vera fibonacci(n utan 2)
     Eit fullført verk: a og b
 Det er nok.
 
 lat i vera 0
 
 Eit øyeblikk om gangen, medan i er mindre enn 15:
-    Syng ut: Bli med til fibonacci med i
+    Syng ut: fibonacci(i)
     i tek imot i og 1
 Det er nok.
