@@ -216,6 +216,18 @@ impl Parser {
         self.eat_name_stop_words(&[stop])
     }
 
+    // Count consecutive "name" Word tokens followed immediately by '(' — for multi-word call detection.
+    fn count_words_before_lparen(&self) -> usize {
+        let mut i = 0;
+        loop {
+            match &self.peek(i).kind {
+                TokenKind::Word(w) if is_name_word(w) => { i += 1; }
+                _ => break,
+            }
+        }
+        if matches!(self.peek(i).kind, TokenKind::LParen) { i } else { 0 }
+    }
+
     fn eat_kind(&mut self, k: &TokenKind) -> Result<(), String> {
         if std::mem::discriminant(&self.cur().kind) == std::mem::discriminant(k) {
             self.pos += 1;
@@ -544,22 +556,23 @@ impl Parser {
             return Ok(Stmt::Respond { value, line: ln });
         }
 
-        // name(args) — function call as statement
-        if matches!(self.cur().kind, TokenKind::Word(_))
-            && matches!(self.peek(1).kind, TokenKind::LParen)
+        // name(args) or multi-word-name(args) — function call as statement
         {
-            let name = self.eat_ident()?;
-            self.eat_kind(&TokenKind::LParen)?;
-            let mut args = Vec::new();
-            if !matches!(self.cur().kind, TokenKind::RParen) {
-                args.push(self.parse_expr()?);
-                while matches!(self.cur().kind, TokenKind::Comma) {
-                    self.eat_kind(&TokenKind::Comma)?;
+            let n = self.count_words_before_lparen();
+            if n >= 1 {
+                let name = self.eat_name_until_lparen()?;
+                self.eat_kind(&TokenKind::LParen)?;
+                let mut args = Vec::new();
+                if !matches!(self.cur().kind, TokenKind::RParen) {
                     args.push(self.parse_expr()?);
+                    while matches!(self.cur().kind, TokenKind::Comma) {
+                        self.eat_kind(&TokenKind::Comma)?;
+                        args.push(self.parse_expr()?);
+                    }
                 }
+                self.eat_kind(&TokenKind::RParen)?;
+                return Ok(Stmt::FuncCall { name, args, line: ln });
             }
-            self.eat_kind(&TokenKind::RParen)?;
-            return Ok(Stmt::FuncCall { name, args, line: ln });
         }
 
         Err(format!("Line {}: unexpected token {:?}", ln, self.cur().kind))
@@ -723,6 +736,27 @@ impl Parser {
             }
         }
 
+        // Multi-word user function call: word{2+} (args) — e.g. «ta imot helsing(…)», «vise kortliste()»
+        {
+            let n = self.count_words_before_lparen();
+            if n >= 2 {
+                let mut parts = Vec::new();
+                for _ in 0..n { parts.push(self.eat_ident()?); }
+                let name = parts.join(" ");
+                self.eat_kind(&TokenKind::LParen)?;
+                let mut args = Vec::new();
+                if !matches!(self.cur().kind, TokenKind::RParen) {
+                    args.push(self.parse_expr()?);
+                    while matches!(self.cur().kind, TokenKind::Comma) {
+                        self.eat_kind(&TokenKind::Comma)?;
+                        args.push(self.parse_expr()?);
+                    }
+                }
+                self.eat_kind(&TokenKind::RParen)?;
+                return self.maybe_index(Expr::Call { name, args });
+            }
+        }
+
         // Variable reference, name(args) call, or method call expression
         if let TokenKind::Word(name) = self.cur().kind.clone() {
             self.pos += 1;
@@ -783,6 +817,15 @@ impl Parser {
 
 fn is_two_word_builtin(name: &str) -> bool {
     matches!(name, "legg til" | "del frå" | "del opp" | "sett saman" | "kvart tal")
+}
+
+fn is_name_word(w: &str) -> bool {
+    if w.chars().next().map_or(false, |c| c.is_uppercase()) { return false; }
+    !matches!(w,
+        "og" | "utan" | "gongar" | "delt" | "er" | "ikkje" | "i" | "til" | "av" | "på" | "frå"
+        | "med" | "sin" | "sitt" | "vert" | "tek" | "lat" | "kvar" | "sjølv"
+        | "stansar" | "atter" | "resten" | "tome" | "medan" | "som"
+    )
 }
 
 fn is_method_name_stop(w: &str) -> bool {
