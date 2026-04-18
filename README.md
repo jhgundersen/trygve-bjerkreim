@@ -425,6 +425,27 @@ Objects have reference semantics — mutations inside methods persist on the ori
 
 ---
 
+## File I/O
+
+**Read file** — *"Open the clear spring"* (song 883)
+
+```
+Opna den klåre kjelda: «data.txt» til innhald
+Syng ut: innhald
+```
+
+Reads the entire file into a string variable.
+
+**Write file** — *"To give is to sow"* (song 772)
+
+```
+Så «Hei, verd!» i «ut.txt»
+```
+
+Writes (overwrites) the file with the given string.
+
+---
+
 ## Built-in functions
 
 | Name | Arguments | Returns |

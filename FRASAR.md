@@ -46,7 +46,8 @@ Allereie brukte frasar er merka ✓.
 
 | Frase | Song | Mogleg konstrukt | Notat |
 |-------|------|-----------------|-------|
-| `Opna den klåre kjelda:` | 883 *Lei meg store Gud og Fader* — "Opna du den klåre kjelda" | opna fil / ressurs | naturleg for fil-I/O |
+| `Opna den klåre kjelda: <filsti> til <var>` | les fil | 883 *Lei meg store Gud og Fader* — "Opna du den klåre kjelda" | — |
+| `Så <innhald> i <filsti>` | skriv fil | 772 *Å gi er å så* — "Å gi er å så" | — |
 | `Morgonen gryr:` | 468 *Sjå morgonsola fagert glimar* — "Morgonen gryr, skuggane flyr" | vent til / delay | kan brukast for timeout/polling |
 | `Skuggane flyr.` | 468 *Sjå morgonsola fagert glimar* | tøm / nullstill | naturleg for reset/clear |
 | `Eg kan ikkje telja dei alle` | 068 *Eg kan ikkje telja dei alle* | uendeleg / store tal | poetisk for overflow-handling |

@@ -43,6 +43,8 @@ pub enum Stmt {
     ClassDef    { name: String, body: Vec<Stmt>, line: usize },
     FieldAssign { obj: String, field: String, value: Expr, line: usize },
     MethodCall  { obj: String, method: String, args: Vec<Expr>, line: usize },
+    ReadFile    { path: Expr, name: String, line: usize },
+    WriteFile   { path: Expr, content: Expr, line: usize },
 }
 
 #[derive(Debug, Clone)]
@@ -426,6 +428,25 @@ impl Parser {
             self.eat_kind(&TokenKind::Colon)?;
             let secs = self.parse_expr()?;
             return Ok(Stmt::Sleep { secs, line: ln });
+        }
+
+        // Opna den klåre kjelda: <filsti> til <var>  — read file
+        if self.is_phrase(&["Opna", "den", "klåre", "kjelda"]) {
+            self.eat_phrase(&["Opna", "den", "klåre", "kjelda"])?;
+            self.eat_kind(&TokenKind::Colon)?;
+            let path = self.parse_expr()?;
+            self.eat_word("til")?;
+            let name = self.eat_ident()?;
+            return Ok(Stmt::ReadFile { path, name, line: ln });
+        }
+
+        // Så <innhald> i <filsti>  — write file (from «Å gi er å så», song 772)
+        if self.is_word("Så") {
+            self.eat_word("Så")?;
+            let content = self.parse_expr()?;
+            self.eat_word("i")?;
+            let path = self.parse_expr()?;
+            return Ok(Stmt::WriteFile { path, content, line: ln });
         }
 
         // Lytt ved port <n>: <body> Det er nok.

@@ -326,6 +326,28 @@ impl Interpreter {
 
             Stmt::Continue { .. } => Ok(Some(Signal::Continue)),
 
+            Stmt::ReadFile { path, name, .. } => {
+                let p = match self.eval(path, env)? {
+                    Value::Str(s) => s,
+                    other => return Err(format!("filsti må vera tekst, fekk {}", other)),
+                };
+                let content = std::fs::read_to_string(&p)
+                    .map_err(|e| format!("kan ikkje lesa «{}»: {}", p, e))?;
+                env.set(name, Value::Str(content));
+                Ok(None)
+            }
+
+            Stmt::WriteFile { path, content, .. } => {
+                let p = match self.eval(path, env)? {
+                    Value::Str(s) => s,
+                    other => return Err(format!("filsti må vera tekst, fekk {}", other)),
+                };
+                let text = self.eval(content, env)?.to_string();
+                std::fs::write(&p, &text)
+                    .map_err(|e| format!("kan ikkje skriva til «{}»: {}", p, e))?;
+                Ok(None)
+            }
+
             Stmt::Raise { value, .. } => {
                 let v = self.eval(value, env)?;
                 Err(v.to_string())
