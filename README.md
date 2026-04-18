@@ -10,12 +10,32 @@ The interpreter is called **tbv** (Trygve Bjerkrheim's Verse).
 
 ---
 
+## Install
+
+**One-line install** (Linux and macOS):
+
+```sh
+curl -sSf https://raw.githubusercontent.com/jhgundersen/trygve-bjerkreim/master/install.sh | sh
+```
+
+Installs the prebuilt binary to `~/.local/bin/tbv`. Supports Linux x86_64/arm64 and macOS x86_64/arm64.
+
+**Build from source:**
+
+```sh
+git clone https://github.com/jhgundersen/trygve-bjerkreim.git
+cd trygve-bjerkreim
+make install        # builds with cargo and installs to ~/.local/bin
+```
+
+---
+
 ## Running programs
 
 ```
-./tbv program.tb     # run a file
-./tbv --repl         # interactive REPL
-./tbv --version      # show version
+tbv program.tb      # run a file
+tbv --repl          # interactive REPL
+tbv --version       # show version
 ```
 
 Files use the `.tb` extension. Source must be UTF-8.
