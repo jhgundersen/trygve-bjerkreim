@@ -37,6 +37,9 @@ pub enum Stmt {
     Continue  { line: usize },
     Serve     { port: Expr, body: Vec<Stmt>, line: usize },
     Respond   { value: Expr, line: usize },
+    Raise     { value: Expr, line: usize },
+    Assert    { cond: Expr, line: usize },
+    Sleep     { secs: Expr, line: usize },
 }
 
 #[derive(Debug, Clone)]
@@ -149,8 +152,31 @@ impl Parser {
     fn at_block_end(&self) -> bool {
         self.is_eof()
             || self.is_phrase(&["Det", "er", "nok"])
-            || self.is_phrase(&["Men", "om", "ikkje"])
+            || self.is_phrase(&["Men", "om"])   // covers both "Men om ikkje:" and "Men om <cond>:"
             || self.is_phrase(&["Ver", "ikkje", "redd"])
+    }
+
+    // Parse optional else / else-if chain after a then-block.
+    // Caller eats "Det er nok." after this returns.
+    fn parse_else_chain(&mut self, ln: usize) -> Result<Option<Vec<Stmt>>, String> {
+        if self.is_phrase(&["Men", "om", "ikkje"])
+            && matches!(self.peek(3).kind, TokenKind::Colon)
+        {
+            // Plain else: Men om ikkje:
+            self.eat_phrase(&["Men", "om", "ikkje"])?;
+            self.eat_kind(&TokenKind::Colon)?;
+            Ok(Some(self.parse_block()?))
+        } else if self.is_phrase(&["Men", "om"]) {
+            // Else-if: Men om <cond>:
+            self.eat_phrase(&["Men", "om"])?;
+            let cond = self.parse_expr()?;
+            self.eat_kind(&TokenKind::Colon)?;
+            let then_body = self.parse_block()?;
+            let else_body = self.parse_else_chain(ln)?;
+            Ok(Some(vec![Stmt::If { cond, then_body, else_body, line: ln }]))
+        } else {
+            Ok(None)
+        }
     }
 
     fn parse_block(&mut self) -> Result<Vec<Stmt>, String> {
@@ -198,19 +224,13 @@ impl Parser {
             return Ok(Stmt::Input { name, line: ln });
         }
 
-        // Du kjem ikkje utanom <cond>: <then> [Men om ikkje: <else>] Det er nok.
+        // Du kjem ikkje utanom <cond>: <then> [Men om <cond>: <elif>]* [Men om ikkje: <else>] Det er nok.
         if self.is_phrase(&["Du", "kjem", "ikkje", "utanom"]) {
             self.eat_phrase(&["Du", "kjem", "ikkje", "utanom"])?;
             let cond = self.parse_expr()?;
             self.eat_kind(&TokenKind::Colon)?;
             let then_body = self.parse_block()?;
-            let else_body = if self.is_phrase(&["Men", "om", "ikkje"]) {
-                self.eat_phrase(&["Men", "om", "ikkje"])?;
-                self.eat_kind(&TokenKind::Colon)?;
-                Some(self.parse_block()?)
-            } else {
-                None
-            };
+            let else_body = self.parse_else_chain(ln)?;
             self.eat_phrase(&["Det", "er", "nok"])?;
             self.eat_kind(&TokenKind::Dot)?;
             return Ok(Stmt::If { cond, then_body, else_body, line: ln });
@@ -340,6 +360,30 @@ impl Parser {
             self.eat_phrase(&["atter", "ein", "gong"])?;
             self.eat_kind(&TokenKind::Dot)?;
             return Ok(Stmt::Continue { line: ln });
+        }
+
+        // Rop ut: <expr>  — raise / throw error
+        if self.is_phrase(&["Rop", "ut"]) {
+            self.eat_phrase(&["Rop", "ut"])?;
+            self.eat_kind(&TokenKind::Colon)?;
+            let value = self.parse_expr()?;
+            return Ok(Stmt::Raise { value, line: ln });
+        }
+
+        // Set vakt: <cond>  — assert; halts with error if condition is false
+        if self.is_phrase(&["Set", "vakt"]) {
+            self.eat_phrase(&["Set", "vakt"])?;
+            self.eat_kind(&TokenKind::Colon)?;
+            let cond = self.parse_expr()?;
+            return Ok(Stmt::Assert { cond, line: ln });
+        }
+
+        // Kvil eit augneblink: <n>  — sleep N seconds
+        if self.is_phrase(&["Kvil", "eit", "augneblink"]) {
+            self.eat_phrase(&["Kvil", "eit", "augneblink"])?;
+            self.eat_kind(&TokenKind::Colon)?;
+            let secs = self.parse_expr()?;
+            return Ok(Stmt::Sleep { secs, line: ln });
         }
 
         // Lytt ved port <n>: <body> Det er nok.

@@ -145,7 +145,21 @@ Men om ikkje:
 Det er nok.
 ```
 
-Every `Du kjem ikkje utanom` block ends with `Det er nok.`
+With else-if — *"but if [condition]"*:
+
+```
+Du kjem ikkje utanom x er 1:
+    Syng ut: «ein»
+Men om x er 2:
+    Syng ut: «to»
+Men om x er 3:
+    Syng ut: «tre»
+Men om ikkje:
+    Syng ut: «anna»
+Det er nok.
+```
+
+Every `Du kjem ikkje utanom` block ends with a single `Det er nok.`
 
 ---
 
@@ -277,6 +291,38 @@ Det er nok.
 ```
 
 The variable `feilen` contains the error message inside the catch block.
+
+---
+
+## Raise error
+
+*"Cry out"* — from *"Rop ut til kvart eit folkeslag"* (song 760). Raises a runtime error that can be caught with `Ver ikkje redd:`.
+
+```
+Rop ut: «noko gjekk gale»
+```
+
+---
+
+## Assert
+
+*"Set guard"* — from *"Set då vakt ved hjartans port"* (song 527). Halts with an error if the condition is false.
+
+```
+Set vakt: lengd(liste) er større enn 0
+Set vakt: n er ikkje 0
+```
+
+---
+
+## Sleep
+
+*"Rest a moment"* — pauses execution for N seconds (accepts decimals).
+
+```
+Kvil eit augneblink: 1
+Kvil eit augneblink: 0.5
+```
 
 ---
 

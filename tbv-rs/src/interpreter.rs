@@ -3,6 +3,7 @@
 use std::collections::HashMap;
 use std::io::{self, BufRead, Read, Write};
 use std::net::TcpListener;
+use std::time::Duration;
 use std::fmt;
 
 use crate::parser::{BinOpKind, Expr, Program, Stmt};
@@ -301,6 +302,30 @@ impl Interpreter {
             Stmt::Break { .. } => Ok(Some(Signal::Break)),
 
             Stmt::Continue { .. } => Ok(Some(Signal::Continue)),
+
+            Stmt::Raise { value, .. } => {
+                let v = self.eval(value, env)?;
+                Err(v.to_string())
+            }
+
+            Stmt::Assert { cond, .. } => {
+                let v = self.eval(cond, env)?;
+                if !v.truthy() {
+                    Err(format!("Vakt broten: {} er ikkje sant", v))
+                } else {
+                    Ok(None)
+                }
+            }
+
+            Stmt::Sleep { secs, .. } => {
+                let s = match self.eval(secs, env)? {
+                    Value::Int(n)   => n as f64,
+                    Value::Float(f) => f,
+                    other           => return Err(format!("kvil krev tal, fekk {}", other)),
+                };
+                std::thread::sleep(Duration::from_secs_f64(s.max(0.0)));
+                Ok(None)
+            }
 
             Stmt::Respond { value, .. } => {
                 let v = self.eval(value, env)?;
