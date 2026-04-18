@@ -142,6 +142,47 @@ impl Parser {
         }
     }
 
+    // Eat consecutive Word tokens until '(' — used for function/method definitions.
+    fn eat_name_until_lparen(&mut self) -> Result<String, String> {
+        let mut parts = Vec::new();
+        while matches!(self.cur().kind, TokenKind::Word(_)) {
+            if matches!(self.cur().kind, TokenKind::LParen) { break; }
+            parts.push(self.eat_ident()?);
+            if matches!(self.cur().kind, TokenKind::LParen) { break; }
+        }
+        if parts.is_empty() {
+            Err(format!("Line {}: expected name, got {:?}", self.cur().line, self.cur().kind))
+        } else {
+            Ok(parts.join(" "))
+        }
+    }
+
+    // Eat consecutive Word tokens for a method call name — stops at operator keywords, non-words,
+    // or when the next token suggests the current word begins a new statement (var vert/sin/tek).
+    fn eat_method_name_call(&mut self) -> Result<String, String> {
+        let mut parts = Vec::new();
+        loop {
+            match &self.cur().kind {
+                TokenKind::Word(w) if !is_method_name_stop(w) => {
+                    // If the token AFTER this one looks like a new-statement marker, cur is the
+                    // subject of that next statement — don't eat it as part of the method name.
+                    if self.is_word_at(1, "vert") || self.is_word_at(1, "sin") || self.is_word_at(1, "tek") {
+                        break;
+                    }
+                    let w = w.clone();
+                    self.pos += 1;
+                    parts.push(w);
+                }
+                _ => break,
+            }
+        }
+        if parts.is_empty() {
+            Err(format!("Line {}: expected method name, got {:?}", self.cur().line, self.cur().kind))
+        } else {
+            Ok(parts.join(" "))
+        }
+    }
+
     fn eat_kind(&mut self, k: &TokenKind) -> Result<(), String> {
         if std::mem::discriminant(&self.cur().kind) == std::mem::discriminant(k) {
             self.pos += 1;
@@ -298,10 +339,10 @@ impl Parser {
             return Ok(Stmt::CountLoop { count, var, body, line: ln });
         }
 
-        // Eg kan <name>(<params>): <body> Det er nok.
+        // Eg kan <multi-word-name>(<params>): <body> Det er nok.
         if self.is_phrase(&["Eg", "kan"]) {
             self.eat_phrase(&["Eg", "kan"])?;
-            let name = self.eat_ident()?;
+            let name = self.eat_name_until_lparen()?;
             self.eat_kind(&TokenKind::LParen)?;
             let mut params = Vec::new();
             if !matches!(self.cur().kind, TokenKind::RParen) {
@@ -369,7 +410,7 @@ impl Parser {
         {
             let obj = self.eat_ident()?;
             self.eat_phrase(&["vert", "kalla", "til", "å"])?;
-            let method = self.eat_ident()?;
+            let method = self.eat_method_name_call()?;
             let args = if self.is_word("med") { self.eat_word("med")?; self.parse_arg_list()? } else { vec![] };
             return Ok(Stmt::MethodCall { obj, method, args, line: ln });
         }
@@ -664,7 +705,7 @@ impl Parser {
             // <var> vert kalla til å <method> [med <args>]  — method call expression
             if self.is_phrase(&["vert", "kalla", "til", "å"]) {
                 self.eat_phrase(&["vert", "kalla", "til", "å"])?;
-                let method = self.eat_ident()?;
+                let method = self.eat_method_name_call()?;
                 let args = if self.is_word("med") { self.eat_word("med")?; self.parse_arg_list()? } else { vec![] };
                 return self.maybe_index(Expr::MethodCall { obj: Box::new(Expr::Var(name)), method, args });
             }
@@ -704,6 +745,15 @@ impl Parser {
 
 fn is_two_word_builtin(name: &str) -> bool {
     matches!(name, "legg til" | "del frå" | "del opp" | "sett saman" | "kvart tal")
+}
+
+fn is_method_name_stop(w: &str) -> bool {
+    // Capitalized words are statement-starting keywords — never part of a method name.
+    if w.chars().next().map_or(false, |c| c.is_uppercase()) { return true; }
+    matches!(w,
+        "med" | "og" | "utan" | "gongar" | "delt" | "resten" | "er" | "ikkje" | "sin"
+        | "lat" | "kvar" | "stansar" | "atter" | "sjølv" | "til" | "av" | "på" | "i" | "frå"
+    )
 }
 
 // ─────────────────────────────────────────────────────────────────

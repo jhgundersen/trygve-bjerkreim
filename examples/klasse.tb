@@ -4,7 +4,7 @@ Songen Punkt:
     lat x vera 0
     lat y vera 0
 
-    Eg kan setje(nx, ny):
+    Eg kan setje posisjon(nx, ny):
         sjølv sin x tek imot nx
         sjølv sin y tek imot ny
     Det er nok.
@@ -17,13 +17,17 @@ Songen Punkt:
     Eg kan vise():
         Syng ut: «(» og sjølv sin x og «, » og sjølv sin y og «)»
     Det er nok.
+
+    Eg kan berekne avstand():
+        Takk at du tok mine byrder: sjølv sin x gongar sjølv sin x og sjølv sin y gongar sjølv sin y
+    Det er nok.
 Det er nok.
 
 Syng for meg songen om Punkt til a
 Syng for meg songen om Punkt til b
 
-a vert kalla til å setje med 1, 2
-b vert kalla til å setje med 5, 8
+a vert kalla til å setje posisjon med 1, 2
+b vert kalla til å setje posisjon med 5, 8
 
 Syng ut: «Punkt a:»
 a vert kalla til å vise
@@ -34,3 +38,6 @@ b vert kalla til å vise
 a vert kalla til å flytte med 4, 6
 Syng ut: «Punkt a etter flytte(4,6):»
 a vert kalla til å vise
+
+Syng ut: «Avstand frå origo (kvadrert):»
+Syng ut: a vert kalla til å berekne avstand

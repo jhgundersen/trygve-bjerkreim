@@ -378,12 +378,12 @@ Songen Punkt:
     lat x vera 0
     lat y vera 0
 
-    Eg kan setje(nx, ny):
+    Eg kan setje posisjon(nx, ny):
         sjølv sin x tek imot nx
         sjølv sin y tek imot ny
     Det er nok.
 
-    Eg kan distanse():
+    Eg kan berekne avstand():
         Takk at du tok mine byrder: sjølv sin x gongar sjølv sin x og sjølv sin y gongar sjølv sin y
     Det er nok.
 Det er nok.
@@ -412,13 +412,13 @@ p sin x tek imot 10
 **Call a method (statement)**
 
 ```
-p vert kalla til å setje med 3, 7
+p vert kalla til å setje posisjon med 3, 7
 ```
 
 **Call a method (expression)**
 
 ```
-Syng ut: p vert kalla til å distanse
+Syng ut: p vert kalla til å berekne avstand
 ```
 
 Objects have reference semantics — mutations inside methods persist on the original.
